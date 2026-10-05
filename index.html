@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ágora - Plataforma de Emprendimiento</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sparklingFrost: '#DDECF1',
+                        peppermint: '#AED9C5',
+                        deltone: '#84BF93',
+                        greenJujube: '#9ABF17',
+                        darkText: '#1E293B',
+                        softText: '#475569'
+                    },
+                    fontFamily: {
+                        heading: ['Plus Jakarta Sans', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    boxShadow: {
+                        card: '0 4px 20px rgba(30, 41, 59, 0.05)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #1E293B; }
+        h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-darkText flex flex-col min-h-screen relative">
+
+    <!-- HEADER / NAVEGACIÓN -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-peppermint/40 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleMenu(true)" class="p-2.5 rounded-xl bg-sparklingFrost hover:bg-peppermint/50 text-darkText md:hidden">
+                    <i class="fa-solid fa-bars-staggered text-xl"></i>
+                </button>
+                <a href="#" onclick="navigate('home')" class="flex items-center space-x-2">
+                    <span class="text-2xl font-extrabold font-heading tracking-wide text-darkText hover:text-deltone">ÁGORA</span>
+                </a>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-semibold">
+                <button onclick="navigate('home')" class="nav-link-item text-deltone border-b-2 border-deltone py-1 font-heading" data-page="home">Inicio</button>
+                <button onclick="navigate('cursos')" class="nav-link-item text-softText hover:text-deltone py-1 font-heading" data-page="cursos">Talleres y Recursos</button>
+                <button onclick="navigate('foro')" class="nav-link-item text-softText hover:text-deltone py-1 font-heading" data-page="foro">Foro Emprendedor</button>
+                <button onclick="navigate('convocatorias')" class="nav-link-item text-softText hover:text-deltone py-1 font-heading" data-page="convocatorias">Convocatorias y Eventos</button>
+                <button onclick="navigate('about')" class="nav-link-item text-softText hover:text-deltone py-1 font-heading" data-page="about">Sobre nosotros</button>
+            </nav>
+
+            <!-- ÁREA DE USUARIO Y SESIÓN -->
+            <div class="flex items-center space-x-2">
+                <div id="userInfoContainer" class="hidden flex items-center space-x-2 bg-sparklingFrost px-3 py-1.5 rounded-xl border border-peppermint/50">
+                    <i class="fa-solid fa-user-shield text-deltone text-lg" id="userRoleIcon"></i>
+                    <span id="userBadge" class="text-xs font-bold font-heading text-darkText"></span>
+                </div>
+                
+                <button id="authBtn" onclick="handleAuthAction()" class="px-4 py-2 rounded-xl bg-peppermint hover:bg-deltone hover:text-white text-darkText font-heading font-semibold text-xs shadow-sm transition-all flex items-center space-x-2">
+                    <i id="authIcon" class="fa-solid fa-right-to-bracket"></i>
+                    <span id="authBtnText">Iniciar Sesión</span>
+                </button>
+
+                <button id="registerBtn" onclick="openRegisterModal()" class="px-4 py-2 rounded-xl bg-darkText hover:bg-slate-700 text-white font-heading font-semibold text-xs shadow-sm transition-all">
+                    Registrarse
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MENÚ LATERAL MÓVIL -->
+    <div id="drawerOverlay" onclick="toggleMenu(false)" class="fixed inset-0 bg-darkText/40 z-40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity"></div>
+    <aside id="sideDrawer" class="fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white z-50 shadow-2xl -translate-x-full transition-transform flex flex-col justify-between p-6">
+        <div>
+            <div class="flex items-center justify-between pb-6 border-b border-peppermint/30">
+                <span class="text-xl font-bold font-heading">Menú Principal</span>
+                <button onclick="toggleMenu(false)" class="p-2 rounded-lg hover:bg-sparklingFrost"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <nav class="mt-6 flex flex-col space-y-2 font-heading text-base">
+                <button onclick="navigate('home'); toggleMenu(false);" class="p-3 text-left font-medium hover:bg-sparklingFrost rounded-xl">Inicio</button>
+                <button onclick="navigate('cursos'); toggleMenu(false);" class="p-3 text-left font-medium hover:bg-sparklingFrost rounded-xl">Talleres y Recursos</button>
+                <button onclick="navigate('foro'); toggleMenu(false);" class="p-3 text-left font-medium hover:bg-sparklingFrost rounded-xl">Foro Emprendedor</button>
+                <button onclick="navigate('convocatorias'); toggleMenu(false);" class="p-3 text-left font-medium hover:bg-sparklingFrost rounded-xl">Convocatorias y Eventos</button>
+                <button onclick="navigate('about'); toggleMenu(false);" class="p-3 text-left font-medium hover:bg-sparklingFrost rounded-xl">Sobre nosotros</button>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- MODAL DE INICIO DE SESIÓN -->
+    <div id="loginModal" class="fixed inset-0 bg-darkText/50 z-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-5 relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 p-2 rounded-lg hover:bg-sparklingFrost"><i class="fa-solid fa-xmark text-lg"></i></button>
+
+            <div class="text-center space-y-1">
+                <h2 class="text-xl font-bold font-heading">Iniciar Sesión</h2>
+                <p class="text-xs text-softText">Ingresa con tus credenciales</p>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-3">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold font-heading">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" required placeholder="tu.correo@ejemplo.com" class="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-deltone">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold font-heading">Contraseña</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-deltone">
+                </div>
+                <button type="submit" class="w-full py-3 bg-deltone hover:bg-greenJujube text-white font-bold font-heading rounded-xl shadow-md transition-all text-xs">
+                    Ingresar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE REGISTRO -->
+    <div id="registerModal" class="fixed inset-0 bg-darkText/50 z-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-5 relative">
+            <button onclick="closeRegisterModal()" class="absolute top-4 right-4 p-2 rounded-lg hover:bg-sparklingFrost"><i class="fa-solid fa-xmark text-lg"></i></button>
+
+            <div class="text-center space-y-1">
+                <h2 class="text-xl font-bold font-heading">Crear Cuenta</h2>
+                <p class="text-xs text-softText">Únete a la comunidad de Ágora</p>
+            </div>
+
+            <form onsubmit="handleRegisterSubmit(event)" class="space-y-3">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold font-heading">Nombre Completo</label>
+                    <input type="text" id="regName" required placeholder="Ej. Ana Pérez" class="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-deltone">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold font-heading">Correo Electrónico</label>
+                    <input type="email" id="regEmail" required placeholder="tu.correo@ejemplo.com" class="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-deltone">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold font-heading">Contraseña</label>
+                    <input type="password" id="regPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-deltone">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold font-heading">¿Eres emprendedor/a?</label>
+                    <select id="regIsEntrepreneur" class="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-deltone font-medium">
+                        <option value="true">Sí, soy Emprendedor/a</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full py-3 bg-darkText hover:bg-deltone text-white font-bold font-heading rounded-xl shadow-md transition-all text-xs">
+                    Registrarme
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow">
+
+        <!-- INICIO -->
+        <section id="page-home" class="page-view space-y-8 pb-12 fade-in">
+            <div class="max-w-7xl mx-auto px-4 lg:px-8 pt-4">
+                
+                <!-- CARRUSEL -->
+                <div onmouseenter="pauseCarousel()" onmouseleave="startCarousel()" class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-sparklingFrost via-peppermint/60 to-deltone shadow-card min-h-[360px] flex items-center">
+                    <div id="carouselSlides" class="w-full p-6 md:p-10 transition-all duration-500"></div>
+
+                    <button onclick="prevSlide()" class="absolute left-4 p-2 bg-white/70 hover:bg-white rounded-full text-darkText shadow-md transition"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button onclick="nextSlide()" class="absolute right-4 p-2 bg-white/70 hover:bg-white rounded-full text-darkText shadow-md transition"><i class="fa-solid fa-chevron-right"></i></button>
+                    
+                    <div id="carouselDots" class="absolute bottom-4 w-full flex justify-center space-x-2"></div>
+                </div>
+
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+                    <i class="fa-solid fa-chalkboard-user text-2xl text-deltone mb-2"></i>
+                    <h3 class="font-bold font-heading text-sm">Capacitación en Video</h3>
+                    <p class="text-xs text-softText mt-1">Aprende a preparar tu entrevista, domina finanzas básicas o adquiere un oficio práctico con nuestras videoguías paso a paso.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+                    <i class="fa-solid fa-comments text-2xl text-deltone mb-2"></i>
+                    <h3 class="font-bold font-heading text-sm">Foro Emprendedor</h3>
+                    <p class="text-xs text-softText mt-1">Conecta con otros emprendedores locales, resuelve dudas, comparte tus experiencias y da a conocer tu negocio.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+                    <i class="fa-solid fa-calendar-check text-2xl text-deltone mb-2"></i>
+                    <h3 class="font-bold font-heading text-sm">Recursos Descargables</h3>
+                    <p class="text-xs text-softText mt-1">Descarga formatos editables para estructurar tu Curriculum Vitae y guías prácticas para la búsqueda de empleo.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TALLERES Y RECURSOS -->
+        <section id="page-cursos" class="page-view hidden space-y-6 max-w-7xl mx-auto px-4 lg:px-8 py-6 fade-in">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-xl font-extrabold font-heading">Talleres y Recursos</h1>
+                    <p class="text-xs text-softText">Publicaciones oficiales del Administrador.</p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <label class="text-xs font-bold font-heading">Filtrar por Tipo:</label>
+                    <select id="courseTypeFilter" onchange="renderCourses()" class="bg-slate-100 text-xs font-semibold rounded-xl px-3 py-2 border-none">
+                        <option value="todos">Todos</option>
+                        <option value="Curso">Cursos / Talleres</option>
+                        <option value="Recurso">Recursos</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PANEL CREACIÓN/EDICIÓN CURSOS -->
+            <div id="adminCoursePanel" class="hidden bg-white p-6 rounded-2xl border-2 border-deltone shadow-card space-y-4">
+                <h3 class="font-bold font-heading text-sm text-deltone flex items-center space-x-2">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span id="courseFormTitle">Panel Admin: Crear Nuevo Taller / Recurso</span>
+                </h3>
+                <input type="hidden" id="editCourseId">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="text" id="courseTitleInput" placeholder="Título..." class="px-3 py-2 bg-slate-50 rounded-xl border text-xs">
+                    
+                    <select id="courseTypeInput" class="px-3 py-2 bg-slate-50 rounded-xl border text-xs font-semibold">
+                        <option value="Curso">Curso / Taller</option>
+                        <option value="Recurso">Recurso Descargable</option>
+                    </select>
+
+                    <select id="courseCategoryInput" class="px-3 py-2 bg-slate-50 rounded-xl border text-xs font-semibold">
+                        <option value="" disabled selected>Categoría...</option>
+                        <option value="Finanzas Personales">Finanzas Personales</option>
+                        <option value="Motivación">Motivación</option>
+                        <option value="Marketing y Ventas">Marketing y Ventas</option>
+                        <option value="Gestión de Negocios">Gestión de Negocios</option>
+                        <option value="Liderazgo">Liderazgo</option>
+                        <option value="Tecnología e Innovación">Tecnología e Innovación</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input type="text" id="courseDetailInput" placeholder="Detalle (Ej: 2h 30m o PDF)..." class="px-3 py-2 bg-slate-50 rounded-xl border text-xs">
+                    <input type="text" id="courseInstructorInput" placeholder="Impartido por (Instructor)..." class="px-3 py-2 bg-slate-50 rounded-xl border text-xs">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-bold font-heading text-softText">Adjuntar Imagen, Video o Archivo (Opcional):</label>
+                    <input type="file" id="courseFileInput" accept="image/*,video/*,.pdf,.doc,.docx" class="w-full text-xs text-softText file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sparklingFrost file:text-darkText hover:file:bg-peppermint">
+                </div>
+
+                <div class="flex space-x-2">
+                    <button onclick="saveCourse()" class="px-5 py-2 bg-deltone text-white text-xs font-bold font-heading rounded-xl hover:bg-greenJujube">
+                        Guardar
+                    </button>
+                    <button onclick="resetCourseForm()" class="px-4 py-2 bg-slate-200 text-darkText text-xs font-bold font-heading rounded-xl">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+
+            <div id="coursesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- FORO EMPRENDEDOR -->
+        <section id="page-foro" class="page-view hidden space-y-6 max-w-5xl mx-auto px-4 lg:px-8 py-6 fade-in">
+            <div class="text-center space-y-1">
+                <h1 class="text-xl font-extrabold font-heading">Foro Emprendedor</h1>
+                <p class="text-xs text-softText">Conecta con otros emprendedores locales, resuelve dudas y comparte tus experiencias.</p>
+            </div>
+
+            <!-- FORMULARIO DE PUBLICACIÓN -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card space-y-3">
+                <h3 class="font-bold font-heading text-xs text-darkText">Escribir un comentario o tema</h3>
+                <input type="text" id="newPostTitle" placeholder="Título..." class="w-full px-3 py-2 bg-slate-50 rounded-xl border text-xs">
+                <textarea id="newPostContent" rows="3" placeholder="Escribe tu mensaje aquí..." class="w-full p-3 bg-slate-50 rounded-xl border text-xs"></textarea>
+                
+                <div class="flex justify-between items-center pt-1">
+                    <span class="text-[11px] text-softText">* Requiere sesión iniciada</span>
+                    <button onclick="publishPost()" class="px-5 py-2 bg-deltone text-white text-xs font-bold font-heading rounded-xl">
+                        Publicar
+                    </button>
+                </div>
+            </div>
+
+            <!-- FILTRO DE PERFIL -->
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="font-bold font-heading text-xs">Comentarios en el foro</h3>
+                <div class="flex items-center space-x-2">
+                    <label class="text-xs font-bold font-heading text-softText">Filtrar perfil:</label>
+                    <select id="forumRoleFilter" onchange="renderForum()" class="bg-white border text-xs font-semibold rounded-lg px-2 py-1">
+                        <option value="todos">Todos</option>
+                        <option value="si">Emprendedor</option>
+                        <option value="no">No Emprendedor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="forumThreadsList" class="space-y-4"></div>
+        </section>
+
+        <!-- CONVOCATORIAS Y EVENTOS -->
+        <section id="page-convocatorias" class="page-view hidden space-y-6 max-w-5xl mx-auto px-4 lg:px-8 py-6 fade-in">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-extrabold font-heading">Convocatorias y Eventos</h1>
+                    <p class="text-xs text-softText">Te compartimos eventos y convocatorias de distintas instituciones.</p>
+                </div>
+            </div>
+
+            <!-- PANEL CREACIÓN EVENTOS -->
+            <div id="adminEventPanel" class="hidden bg-white p-6 rounded-2xl border-2 border-deltone shadow-card space-y-4">
+                <h3 class="font-bold font-heading text-sm text-deltone flex items-center space-x-2">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span id="eventFormTitle">Panel Admin: Crear Evento / Convocatoria</span>
+                </h3>
+                <input type="hidden" id="editEventId">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="text" id="eventTitleInput" placeholder="Título..." class="px-3 py-2 bg-slate-50 rounded-xl border text-xs">
+                    
+                    <select id="eventTypeInput" class="px-3 py-2 bg-slate-50 rounded-xl border text-xs font-semibold">
+                        <option value="" disabled selected>Selecciona Tipo...</option>
+                        <option value="Convocatoria">Convocatoria</option>
+                        <option value="Evento">Evento</option>
+                        <option value="Taller">Taller</option>
+                        <option value="Webinar">Webinar</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+
+                    <div class="flex flex-col space-y-1">
+                        <input type="date" id="eventDateInput" class="px-3 py-2 bg-slate-50 rounded-xl border text-xs text-softText">
+                    </div>
+                </div>
+                <textarea id="eventDescInput" rows="2" placeholder="Descripción breve..." class="w-full p-3 bg-slate-50 rounded-xl border text-xs"></textarea>
+                
+                <div class="space-y-1">
+                    <label class="text-xs font-bold font-heading text-softText">Adjuntar Imagen, Video o Convocatoria (Opcional):</label>
+                    <input type="file" id="eventFileInput" accept="image/*,video/*,.pdf,.doc,.docx" class="w-full text-xs text-softText file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sparklingFrost file:text-darkText hover:file:bg-peppermint">
+                </div>
+
+                <div class="flex space-x-2">
+                    <button onclick="saveEvent()" class="px-5 py-2 bg-deltone text-white text-xs font-bold font-heading rounded-xl">
+                        Guardar
+                    </button>
+                    <button onclick="resetEventForm()" class="px-4 py-2 bg-slate-200 text-darkText text-xs font-bold font-heading rounded-xl">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+
+            <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- SOBRE NOSOTROS -->
+        <section id="page-about" class="page-view hidden max-w-4xl mx-auto px-4 lg:px-8 py-10 space-y-6 fade-in">
+            <h1 class="text-2xl font-extrabold font-heading text-center">Sobre ÁGORA</h1>
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 text-xs text-softText leading-relaxed space-y-2">
+                <p>Plataforma para centralizar formación, eventos y comunidad de emprendimiento.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-sparklingFrost/60 text-darkText border-t border-peppermint/40 mt-16 py-10 px-4 lg:px-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div class="space-y-3">
+                <span class="text-xl font-bold font-heading text-darkText">Ágora</span>
+                <p class="text-xs text-softText leading-relaxed">El punto de encuentro para aprender, compartir y crecer juntos.</p>
+            </div>
+
+            <div>
+                <h4 class="font-bold font-heading text-xs uppercase mb-3 text-darkText">Secciones</h4>
+                <ul class="space-y-2 text-xs text-softText">
+                    <li><button onclick="navigate('home')" class="hover:text-deltone">Inicio</button></li>
+                    <li><button onclick="navigate('cursos')" class="hover:text-deltone">Talleres y Recursos</button></li>
+                    <li><button onclick="navigate('foro')" class="hover:text-deltone">Foro Emprendedor</button></li>
+                    <li><button onclick="navigate('convocatorias')" class="hover:text-deltone">Convocatorias y Eventos</button></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold font-heading text-xs uppercase mb-3 text-darkText">Ayuda</h4>
+                <ul class="space-y-2 text-xs text-softText">
+                    <li><button onclick="navigate('home')" class="hover:text-deltone">Preguntas Frecuentes</button></li>
+                    <li><button onclick="navigate('about')" class="hover:text-deltone">Sobre Nosotros</button></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold font-heading text-xs uppercase mb-3 text-darkText">Contacto</h4>
+                <p class="text-xs text-softText">Email: soporte@agora.com</p>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="font-bold font-heading text-xs uppercase text-darkText">Boletín Informativo</h4>
+                <div class="flex">
+                    <input type="email" placeholder="Tu correo..." class="w-full px-3 py-2 bg-white rounded-l-xl text-xs border border-peppermint/60 focus:outline-none">
+                    <button onclick="showToast('Suscrito correctamente')" class="bg-deltone hover:bg-greenJujube text-white font-bold px-4 rounded-r-xl text-xs">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto border-t border-peppermint/40 mt-8 pt-4 text-center text-xs text-softText">
+            <p>&copy; 2026 Ágora. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-darkText text-white px-5 py-3 rounded-xl shadow-2xl z-50 flex items-center space-x-3 translate-y-20 opacity-0 transition-all duration-300">
+        <span class="text-deltone"><i class="fa-solid fa-circle-check"></i></span>
+        <span id="toastMsg" class="font-medium text-xs">Mensaje</span>
+    </div>
+
+    <!-- FIREBASE SDK INTEGRADO -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            addDoc, 
+            updateDoc, 
+            deleteDoc, 
+            onSnapshot, 
+            query, 
+            orderBy 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // TUS CREDENCIALES REALES DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQzlH9nWICFMxDcaRseZ-HdgfrN7imav0",
+            authDomain: "agora-7e62d.firebaseapp.com",
+            projectId: "agora-7e62d",
+            storageBucket: "agora-7e62d.firebasestorage.app",
+            messagingSenderId: "804909939253",
+            appId: "1:804909939253:web:fb2bc320318c7f49ec4f7c"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAIL = "naomi.herbert@iest.edu.mx";
+
+        let courses = [];
+        let events = [];
+        let forumPosts = [];
+        let currentUser = null;
+
+        // ESCUCHAR CAMBIOS EN EL ESTADO DE AUTENTICACIÓN
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    currentUser = { uid: user.uid, ...userDoc.data() };
+                } else {
+                    currentUser = {
+                        uid: user.uid,
+                        email: user.email,
+                        name: user.displayName || user.email.split('@')[0],
+                        role: user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "Administrador" : "Usuario",
+                        isEntrepreneur: false
+                    };
+                }
+            } else {
+                currentUser = null;
+            }
+            updateUIState();
+        });
+
+        // ESCUCHAR CAMBIOS EN TIEMPO REAL DE FIRESTORE
+        function subscribeData() {
+            // Cursos
+            const qCourses = query(collection(db, "courses"), orderBy("createdAt", "desc"));
+            onSnapshot(qCourses, (snapshot) => {
+                courses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderCourses();
+            });
+
+            // Eventos
+            const qEvents = query(collection(db, "events"), orderBy("createdAt", "desc"));
+            onSnapshot(qEvents, (snapshot) => {
+                events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderEvents();
+            });
+
+            // Foro
+            const qForo = query(collection(db, "forum"), orderBy("createdAt", "desc"));
+            onSnapshot(qForo, (snapshot) => {
+                forumPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderForum();
+            });
+        }
+        subscribeData();
+
+        // REGISTRO DE USUARIOS
+        window.handleRegisterSubmit = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const isEntrepreneur = document.getElementById('regIsEntrepreneur').value === 'true';
+
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                const role = email === ADMIN_EMAIL.toLowerCase() ? "Administrador" : (isEntrepreneur ? "Emprendedor" : "Usuario");
+                
+                const userData = {
+                    name: name || "Usuario",
+                    email: email,
+                    role: role,
+                    isEntrepreneur: role === "Administrador" ? false : isEntrepreneur,
+                    createdAt: new Date().toISOString()
+                };
+
+                await setDoc(doc(db, "users", userCred.user.uid), userData);
+
+                closeRegisterModal();
+                showToast(`¡Bienvenido/a, ${userData.name}!`);
+            } catch (error) {
+                console.error("Error en registro:", error);
+                showToast("Error al registrarse: " + error.message);
+            }
+        };
+
+        // INICIO DE SESIÓN
+        window.handleLoginSubmit = async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                closeLoginModal();
+                showToast("Sesión iniciada correctamente.");
+            } catch (error) {
+                console.error("Error en login:", error);
+                showToast("Credenciales incorrectas o usuario no registrado.");
+            }
+        };
+
+        // CERRAR O ABRIR SESIÓN
+        window.handleAuthAction = function() {
+            if (currentUser) {
+                signOut(auth).then(() => {
+                    showToast("Has cerrado sesión.");
+                });
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+            }
+        };
+
+        // TALLERES Y RECURSOS (FIRESTORE)
+        window.saveCourse = async function() {
+            if (!currentUser || currentUser.role !== "Administrador") return;
+
+            const editId = document.getElementById('editCourseId').value;
+            const title = document.getElementById('courseTitleInput').value.trim();
+            const type = document.getElementById('courseTypeInput').value;
+            const category = document.getElementById('courseCategoryInput').value;
+            const detail = document.getElementById('courseDetailInput').value.trim();
+            const instructor = document.getElementById('courseInstructorInput').value.trim();
+            const fileInput = document.getElementById('courseFileInput');
+
+            if (!title || !category || !detail) { showToast("Completa todos los campos obligatorios."); return; }
+
+            let mediaData = null;
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const base64 = await readFileAsBase64(file);
+                mediaData = { name: file.name, type: file.type, url: base64 };
+            }
+
+            try {
+                if (editId) {
+                    const docRef = doc(db, "courses", editId);
+                    const updateData = { title, type, category, detail, instructor };
+                    if (mediaData) updateData.media = mediaData;
+                    await updateDoc(docRef, updateData);
+                } else {
+                    await addDoc(collection(db, "courses"), {
+                        title, type, category, detail, instructor,
+                        media: mediaData || null,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                resetCourseForm();
+                showToast("Guardado en Firebase correctamente.");
+            } catch (err) {
+                showToast("Error al guardar en base de datos.");
+            }
+        };
+
+        window.deleteCourse = async function(id) {
+            if (!currentUser || currentUser.role !== "Administrador") return;
+            try {
+                await deleteDoc(doc(db, "courses", id));
+                showToast("Taller eliminado.");
+            } catch (e) {
+                showToast("Error al eliminar.");
+            }
+        };
+
+        window.editCourse = function(id) {
+            const course = courses.find(c => c.id == id);
+            if (!course) return;
+
+            document.getElementById('editCourseId').value = course.id;
+            document.getElementById('courseTitleInput').value = course.title;
+            document.getElementById('courseTypeInput').value = course.type;
+            document.getElementById('courseCategoryInput').value = course.category || "";
+            document.getElementById('courseDetailInput').value = course.detail;
+            document.getElementById('courseInstructorInput').value = course.instructor || "";
+            document.getElementById('courseFormTitle').textContent = "Editar Taller / Recurso";
+        };
+
+        // CONVOCATORIAS Y EVENTOS (FIRESTORE)
+        window.saveEvent = async function() {
+            if (!currentUser || currentUser.role !== "Administrador") return;
+
+            const editId = document.getElementById('editEventId').value;
+            const title = document.getElementById('eventTitleInput').value.trim();
+            const type = document.getElementById('eventTypeInput').value;
+            const date = document.getElementById('eventDateInput').value;
+            const desc = document.getElementById('eventDescInput').value.trim();
+            const fileInput = document.getElementById('eventFileInput');
+
+            if (!title || !type || !date) { showToast("Completa todos los campos obligatorios."); return; }
+
+            let mediaData = null;
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const base64 = await readFileAsBase64(file);
+                mediaData = { name: file.name, type: file.type, url: base64 };
+            }
+
+            try {
+                if (editId) {
+                    const docRef = doc(db, "events", editId);
+                    const updateData = { title, type, date, desc };
+                    if (mediaData) updateData.media = mediaData;
+                    await updateDoc(docRef, updateData);
+                } else {
+                    await addDoc(collection(db, "events"), {
+                        title, type, date, desc,
+                        media: mediaData || null,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                resetEventForm();
+                showToast("Evento guardado.");
+            } catch (e) {
+                showToast("Error al guardar el evento.");
+            }
+        };
+
+        window.deleteEvent = async function(id) {
+            if (!currentUser || currentUser.role !== "Administrador") return;
+            try {
+                await deleteDoc(doc(db, "events", id));
+                showToast("Evento eliminado.");
+            } catch (e) {
+                showToast("Error al eliminar.");
+            }
+        };
+
+        window.editEvent = function(id) {
+            const ev = events.find(e => e.id == id);
+            if (!ev) return;
+
+            document.getElementById('editEventId').value = ev.id;
+            document.getElementById('eventTitleInput').value = ev.title;
+            document.getElementById('eventTypeInput').value = ev.type || "";
+            document.getElementById('eventDateInput').value = ev.date;
+            document.getElementById('eventDescInput').value = ev.desc;
+            document.getElementById('eventFormTitle').textContent = "Editar Evento / Convocatoria";
+        };
+
+        // FORO Y COMENTARIOS (FIRESTORE)
+        window.publishPost = async function() {
+            if (!currentUser) {
+                showToast("Debes iniciar sesión para comentar.");
+                document.getElementById('loginModal').classList.remove('hidden');
+                return;
+            }
+
+            const title = document.getElementById('newPostTitle').value.trim();
+            const content = document.getElementById('newPostContent').value.trim();
+
+            if (!title || !content) { showToast("Escribe título y contenido."); return; }
+
+            try {
+                await addDoc(collection(db, "forum"), {
+                    authorName: currentUser.name || currentUser.email,
+                    role: currentUser.role,
+                    isEntrepreneur: currentUser.isEntrepreneur,
+                    title: title,
+                    content: content,
+                    date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    createdAt: new Date().toISOString()
+                });
+
+                document.getElementById('newPostTitle').value = '';
+                document.getElementById('newPostContent').value = '';
+                showToast("Comentario publicado.");
+            } catch (e) {
+                showToast("Error al publicar el comentario.");
+            }
+        };
+
+        window.deletePost = async function(id) {
+            if (!currentUser || currentUser.role !== "Administrador") return;
+            try {
+                await deleteDoc(doc(db, "forum", id));
+                showToast("Comentario eliminado.");
+            } catch (e) {
+                showToast("Error al eliminar el comentario.");
+            }
+        };
+
+        // FUNCIONES DE RENDERIZADO Y UI
+        function updateUIState() {
+            const authBtnText = document.getElementById('authBtnText');
+            const authIcon = document.getElementById('authIcon');
+            const userBadge = document.getElementById('userBadge');
+            const userRoleIcon = document.getElementById('userRoleIcon');
+            const userInfoContainer = document.getElementById('userInfoContainer');
+            const registerBtn = document.getElementById('registerBtn');
+
+            const adminCoursePanel = document.getElementById('adminCoursePanel');
+            const adminEventPanel = document.getElementById('adminEventPanel');
+
+            if (currentUser) {
+                authBtnText.textContent = "Cerrar Sesión";
+                authIcon.className = "fa-solid fa-right-from-bracket";
+                
+                const tipoTexto = currentUser.role === 'Administrador' ? 'Admin' : (currentUser.isEntrepreneur ? 'Emprendedor' : 'No Emprendedor');
+                userBadge.textContent = `${currentUser.name} (${tipoTexto})`;
+                
+                userInfoContainer.classList.remove('hidden');
+                registerBtn.classList.add('hidden');
+
+                if (currentUser.role === 'Administrador') {
+                    userRoleIcon.className = "fa-solid fa-user-shield text-amber-500 text-lg";
+                    adminCoursePanel.classList.remove('hidden');
+                    adminEventPanel.classList.remove('hidden');
+                } else {
+                    userRoleIcon.className = "fa-solid fa-user-circle text-deltone text-lg";
+                    adminCoursePanel.classList.add('hidden');
+                    adminEventPanel.classList.add('hidden');
+                }
+            } else {
+                authBtnText.textContent = "Iniciar Sesión";
+                authIcon.className = "fa-solid fa-right-to-bracket";
+                userInfoContainer.classList.add('hidden');
+                registerBtn.classList.remove('hidden');
+
+                adminCoursePanel.classList.add('hidden');
+                adminEventPanel.classList.add('hidden');
+            }
+
+            renderCourses();
+            renderEvents();
+            renderForum();
+        }
+
+        window.renderCourses = function() {
+            const filter = document.getElementById('courseTypeFilter').value;
+            const container = document.getElementById('coursesGrid');
+
+            let filtered = courses;
+            if (filter !== 'todos') filtered = courses.filter(c => c.type === filter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-2xl border text-center space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-300"></i>
+                        <p class="text-xs text-softText">No hay talleres subidos aún.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-card flex flex-col justify-between space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex space-x-1.5 items-center">
+                            <span class="px-2.5 py-1 bg-sparklingFrost text-darkText font-bold text-[10px] font-heading rounded-full uppercase">${item.type}</span>
+                            ${item.category ? `<span class="px-2.5 py-1 bg-peppermint/40 text-darkText text-[10px] font-bold font-heading rounded-full">${item.category}</span>` : ''}
+                        </div>
+                        ${currentUser && currentUser.role === 'Administrador' ? `
+                            <div class="space-x-1">
+                                <button onclick="editCourse('${item.id}')" class="text-blue-500 hover:text-blue-700 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deleteCourse('${item.id}')" class="text-red-500 hover:text-red-700 text-xs p-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div>
+                        <h3 class="font-bold font-heading text-sm text-darkText">${item.title}</h3>
+                        <p class="text-[11px] text-softText mt-1"><i class="fa-regular fa-clock mr-1"></i>${item.detail}</p>
+                        ${renderMediaAttachment(item.media)}
+                    </div>
+                    ${item.instructor ? `<div class="text-[11px] text-softText font-medium border-t pt-2 flex items-center space-x-1"><i class="fa-solid fa-user-tie text-deltone"></i> <span>Impartido por: <strong class="text-darkText">${item.instructor}</strong></span></div>` : ''}
+                </div>
+            `).join('');
+        };
+
+        window.renderEvents = function() {
+            const container = document.getElementById('eventsGrid');
+
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-2xl border text-center space-y-2">
+                        <i class="fa-regular fa-calendar text-3xl text-slate-300"></i>
+                        <p class="text-xs text-softText">No hay convocatorias ni eventos subidos aún.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = events.map(ev => `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-card space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="px-2.5 py-1 bg-peppermint/40 text-darkText text-[10px] font-bold font-heading rounded-full uppercase">${ev.type}</span>
+                        ${currentUser && currentUser.role === 'Administrador' ? `
+                            <div class="space-x-1">
+                                <button onclick="editEvent('${ev.id}')" class="text-blue-500 hover:text-blue-700 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deleteEvent('${ev.id}')" class="text-red-500 hover:text-red-700 text-xs p-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <h3 class="font-bold font-heading text-sm text-darkText">${ev.title}</h3>
+                    <p class="text-xs text-softText">${ev.desc}</p>
+                    ${renderMediaAttachment(ev.media)}
+                    <div class="pt-2 border-t text-[11px] font-semibold text-deltone">Fecha / Cierre: ${ev.date}</div>
+                </div>
+            `).join('');
+        };
+
+        window.renderForum = function() {
+            const roleFilter = document.getElementById('forumRoleFilter').value;
+            const container = document.getElementById('forumThreadsList');
+
+            let filtered = forumPosts;
+            if (roleFilter === 'si') {
+                filtered = forumPosts.filter(p => p.isEntrepreneur === true);
+            } else if (roleFilter === 'no') {
+                filtered = forumPosts.filter(p => p.isEntrepreneur === false);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-8 rounded-2xl border text-center space-y-2">
+                        <i class="fa-regular fa-comments text-3xl text-slate-300"></i>
+                        <p class="text-xs text-softText">No hay comentarios en el foro con esta categoría.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(post => `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-card space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-bold font-heading text-darkText">${post.authorName}</span>
+                            <span class="px-2 py-0.5 ${post.isEntrepreneur ? 'bg-peppermint/60 text-darkText' : 'bg-slate-200 text-softText'} text-[9px] font-bold font-heading rounded-full">
+                                ${post.isEntrepreneur ? 'Emprendedor' : 'No Emprendedor'}
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[10px] text-softText">${post.date}</span>
+                            ${currentUser && currentUser.role === 'Administrador' ? `
+                                <button onclick="deletePost('${post.id}')" class="text-red-500 hover:text-red-700 text-xs ml-2 font-bold flex items-center space-x-1"><i class="fa-solid fa-trash"></i> <span>Borrar</span></button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <h4 class="font-bold font-heading text-xs text-darkText">${post.title}</h4>
+                    <p class="text-xs text-softText">${post.content}</p>
+                </div>
+            `).join('');
+        };
+
+        // UTILIDADES Y NAVEGACIÓN
+        window.openRegisterModal = () => document.getElementById('registerModal').classList.remove('hidden');
+        window.closeRegisterModal = () => document.getElementById('registerModal').classList.add('hidden');
+        window.closeLoginModal = () => document.getElementById('loginModal').classList.add('hidden');
+
+        window.resetCourseForm = function() {
+            document.getElementById('editCourseId').value = '';
+            document.getElementById('courseTitleInput').value = '';
+            document.getElementById('courseCategoryInput').value = '';
+            document.getElementById('courseDetailInput').value = '';
+            document.getElementById('courseInstructorInput').value = '';
+            document.getElementById('courseFileInput').value = '';
+            document.getElementById('courseFormTitle').textContent = "Panel Admin: Crear Nuevo Taller / Recurso";
+        };
+
+        window.resetEventForm = function() {
+            document.getElementById('editEventId').value = '';
+            document.getElementById('eventTitleInput').value = '';
+            document.getElementById('eventTypeInput').value = '';
+            document.getElementById('eventDateInput').value = '';
+            document.getElementById('eventDescInput').value = '';
+            document.getElementById('eventFileInput').value = '';
+            document.getElementById('eventFormTitle').textContent = "Panel Admin: Crear Evento / Convocatoria";
+        };
+
+        window.navigate = function(pageId) {
+            document.querySelectorAll('.page-view').forEach(view => view.classList.add('hidden'));
+            const selected = document.getElementById(`page-${pageId}`);
+            if (selected) selected.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link-item').forEach(link => {
+                if (link.dataset.page === pageId) {
+                    link.classList.add('text-deltone', 'border-b-2', 'border-deltone');
+                    link.classList.remove('text-softText');
+                } else {
+                    link.classList.remove('text-deltone', 'border-b-2', 'border-deltone');
+                    link.classList.add('text-softText');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.toggleMenu = function(open) {
+            const drawer = document.getElementById('sideDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            if (open) {
+                drawer.classList.remove('-translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                drawer.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+            }
+        };
+
+        function renderMediaAttachment(media) {
+            if (!media) return '';
+            if (media.type.startsWith('image/')) {
+                return `<img src="${media.url}" alt="${media.name}" class="w-full h-40 object-cover rounded-xl mt-2 border">`;
+            } else if (media.type.startsWith('video/')) {
+                return `<video controls class="w-full h-40 rounded-xl mt-2 bg-black"><source src="${media.url}" type="${media.type}">Tu navegador no soporta video.</video>`;
+            } else {
+                return `<a href="${media.url}" download="${media.name}" class="inline-flex items-center space-x-2 mt-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-deltone"><i class="fa-solid fa-file-arrow-down text-sm"></i><span>Descargar ${media.name}</span></a>`;
+            }
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.showToast = function(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
+        };
+
+        // CARRUSEL
+        let slidesData = [
+            { 
+                title: "¡Bienvenido a Ágora!", 
+                text: "El punto de encuentro para aprender, compartir y crecer juntos. Descubre convocatorias, fortalece tu perfil profesional y conecta con la comunidad emprendedora.", 
+                btn: "Ver Recursos", 
+                page: "cursos",
+                image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80"
+            },
+            { 
+                title: "¡Únete al foro de emprendedores!", 
+                text: "Comparte tus ideas, promociona tu negocio y aprende de las experiencias de otros emprendedores.", 
+                btn: "Ir al Foro", 
+                page: "foro",
+                image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80"
+            }
+        ];
+        let currentSlide = 0;
+        let carouselTimer = null;
+
+        function renderSlide() {
+            const container = document.getElementById('carouselSlides');
+            const dotsContainer = document.getElementById('carouselDots');
+            const slide = slidesData[currentSlide];
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center fade-in">
+                    <div class="space-y-4">
+                        <h1 class="text-2xl md:text-3xl font-extrabold font-heading text-darkText leading-tight">${slide.title}</h1>
+                        <p class="text-xs md:text-sm font-medium text-softText">${slide.text}</p>
+                        <button onclick="navigate('${slide.page}')" class="px-5 py-2.5 bg-darkText hover:bg-deltone text-white rounded-xl font-heading text-xs font-semibold transition">
+                            ${slide.btn}
+                        </button>
+                    </div>
+                    <div class="flex justify-center">
+                        <img src="${slide.image}" alt="Banner Image" class="rounded-2xl shadow-md object-cover h-48 md:h-56 w-full max-w-md border-2 border-white/60">
+                    </div>
+                </div>
+            `;
+
+            dotsContainer.innerHTML = slidesData.map((_, idx) => `
+                <button onclick="goToSlide(${idx})" class="w-2.5 h-2.5 rounded-full transition-all ${idx === currentSlide ? 'bg-darkText w-6' : 'bg-white/70'}"></button>
+            `).join('');
+        }
+
+        window.nextSlide = () => { currentSlide = (currentSlide + 1) % slidesData.length; renderSlide(); };
+        window.prevSlide = () => { currentSlide = (currentSlide - 1 + slidesData.length) % slidesData.length; renderSlide(); };
+        window.goToSlide = (idx) => { currentSlide = idx; renderSlide(); };
+        window.startCarousel = () => { if (!carouselTimer) carouselTimer = setInterval(nextSlide, 4000); };
+        window.pauseCarousel = () => { clearInterval(carouselTimer); carouselTimer = null; };
+
+        // INICIALIZACIÓN
+        renderSlide();
+        startCarousel();
+        navigate('home');
+    </script>
+</body>
+</html>

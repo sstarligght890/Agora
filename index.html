@@ -475,19 +475,12 @@
             query, 
             orderBy 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { 
-            getStorage, 
-            ref, 
-            uploadBytes, 
-            getDownloadURL 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-        // CONFIGURACIÓN DE FIREBASE (USANDO EL DOMINIO DE STORAGE CORREGIDO)
+        // CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDQzlH9nWICFMxDcaRseZ-HdgfrN7imav0",
             authDomain: "agora-7e62d.firebaseapp.com",
             projectId: "agora-7e62d",
-            storageBucket: "agora-7e62d.firebasestorage.app",
             messagingSenderId: "804909939253",
             appId: "1:804909939253:web:fb2bc320318c7f49ec4f7c"
         };
@@ -496,7 +489,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         const ADMIN_EMAIL = "naomi.herbert@iest.edu.mx";
 
@@ -628,35 +620,27 @@
             }
         };
 
-        // SUBIR MÚLTIPLES ARCHIVOS CON MANEJO DE ERRORES MEJORADO
+        // PROCESAR Y CONVERTIR ARCHIVOS A BASE64 (DIRECTO A FIRESTORE, SIN DEPENDER DE STORAGE/CORS)
         async function uploadFilesToStorage(fileInput, folder) {
             if (!fileInput || !fileInput.files || fileInput.files.length === 0) return null;
 
             const filesArray = Array.from(fileInput.files);
-            showToast("Subiendo archivo(s)...");
+            showToast("Procesando archivo(s)...");
 
-            try {
-                const uploadPromises = filesArray.map(async (file) => {
-                    const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
-                    const filePath = `${folder}/${Date.now()}_${Math.random().toString(36).substr(2, 5)}_${cleanName}`;
-                    const storageRef = ref(storage, filePath);
-
-                    const snapshot = await uploadBytes(storageRef, file);
-                    const downloadURL = await getDownloadURL(snapshot.ref);
-
-                    return {
+            const promises = filesArray.map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve({
                         name: file.name,
                         type: file.type,
-                        url: downloadURL
-                    };
+                        url: reader.result
+                    });
+                    reader.onerror = error => reject(error);
                 });
+            });
 
-                return await Promise.all(uploadPromises);
-            } catch (err) {
-                console.error("Error detallado al subir a Firebase Storage:", err);
-                showToast("Error al subir archivo a Firebase Storage.");
-                throw err;
-            }
+            return await Promise.all(promises);
         }
 
         // TALLERES Y RECURSOS (FIRESTORE)

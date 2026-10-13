@@ -166,6 +166,36 @@
         </div>
     </div>
 
+    <!-- MODAL VISOR DE IMÁGENES -->
+    <div id="imageViewerModal" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md select-none" onclick="closeImageViewer()">
+        <button onclick="closeImageViewer()" class="absolute top-4 right-4 p-3 rounded-full bg-white/20 hover:bg-white/40 text-white text-xl transition z-50">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <button id="btnPrevImg" onclick="event.stopPropagation(); prevImageViewer();" class="absolute left-4 p-3.5 rounded-full bg-white/20 hover:bg-white/40 text-white text-xl transition z-50">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="relative max-w-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <img id="imageViewerSrc" src="" alt="Imagen Completa" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl">
+            <span id="imageViewerCounter" class="mt-2 text-xs font-semibold text-white/80 bg-black/50 px-3 py-1 rounded-full"></span>
+        </div>
+
+        <button id="btnNextImg" onclick="event.stopPropagation(); nextImageViewer();" class="absolute right-4 p-3.5 rounded-full bg-white/20 hover:bg-white/40 text-white text-xl transition z-50">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- MODAL VISOR DE VIDEO -->
+    <div id="videoViewerModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md" onclick="closeVideoViewer()">
+        <button onclick="closeVideoViewer()" class="absolute top-4 right-4 p-3 rounded-full bg-white/20 hover:bg-white/40 text-white text-xl transition z-50">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="w-full max-w-4xl max-h-[85vh] rounded-2xl overflow-hidden bg-black shadow-2xl" onclick="event.stopPropagation()">
+            <video id="videoViewerSrc" controls autoplay class="w-full h-full max-h-[85vh] object-contain"></video>
+        </div>
+    </div>
+
     <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-grow">
 
@@ -173,7 +203,7 @@
         <section id="page-home" class="page-view space-y-8 pb-12 fade-in">
             <div class="max-w-7xl mx-auto px-4 lg:px-8 pt-4">
                 
-                <!-- CARRUSEL -->
+                <!-- CARRUSEL INICIAL -->
                 <div onmouseenter="pauseCarousel()" onmouseleave="startCarousel()" class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-sparklingFrost via-peppermint/60 to-deltone shadow-card min-h-[360px] flex items-center">
                     <div id="carouselSlides" class="w-full p-6 md:p-10 transition-all duration-500"></div>
 
@@ -253,8 +283,8 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label class="text-xs font-bold font-heading text-softText">Adjuntar Imagen, Video o Archivo (Opcional):</label>
-                    <input type="file" id="courseFileInput" accept="image/*,video/*,.pdf,.doc,.docx" class="w-full text-xs text-softText file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sparklingFrost file:text-darkText hover:file:bg-peppermint">
+                    <label class="text-xs font-bold font-heading text-softText">Adjuntar Imágenes, Videos o Archivos (Múltiples):</label>
+                    <input type="file" id="courseFileInput" multiple accept="image/*,video/*,.pdf,.doc,.docx" class="w-full text-xs text-softText file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sparklingFrost file:text-darkText hover:file:bg-peppermint">
                 </div>
 
                 <div class="flex space-x-2">
@@ -279,15 +309,21 @@
 
             <!-- FORMULARIO DE PUBLICACIÓN -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card space-y-3">
-                <h3 class="font-bold font-heading text-xs text-darkText">Escribir un comentario o tema</h3>
+                <h3 class="font-bold font-heading text-xs text-darkText" id="forumFormTitle">Escribir un comentario o tema</h3>
+                <input type="hidden" id="editPostId">
                 <input type="text" id="newPostTitle" placeholder="Título..." class="w-full px-3 py-2 bg-slate-50 rounded-xl border text-xs">
                 <textarea id="newPostContent" rows="3" placeholder="Escribe tu mensaje aquí..." class="w-full p-3 bg-slate-50 rounded-xl border text-xs"></textarea>
                 
                 <div class="flex justify-between items-center pt-1">
                     <span class="text-[11px] text-softText">* Requiere sesión iniciada</span>
-                    <button onclick="publishPost()" class="px-5 py-2 bg-deltone text-white text-xs font-bold font-heading rounded-xl">
-                        Publicar
-                    </button>
+                    <div class="space-x-2">
+                        <button onclick="publishPost()" id="btnSavePost" class="px-5 py-2 bg-deltone text-white text-xs font-bold font-heading rounded-xl">
+                            Publicar
+                        </button>
+                        <button onclick="resetForumForm()" id="btnCancelPost" class="hidden px-4 py-2 bg-slate-200 text-darkText text-xs font-bold font-heading rounded-xl">
+                            Cancelar
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -323,7 +359,7 @@
                     <span id="eventFormTitle">Panel Admin: Crear Evento / Convocatoria</span>
                 </h3>
                 <input type="hidden" id="editEventId">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <input type="text" id="eventTitleInput" placeholder="Título..." class="px-3 py-2 bg-slate-50 rounded-xl border text-xs">
                     
                     <select id="eventTypeInput" class="px-3 py-2 bg-slate-50 rounded-xl border text-xs font-semibold">
@@ -334,16 +370,12 @@
                         <option value="Webinar">Webinar</option>
                         <option value="Otro">Otro</option>
                     </select>
-
-                    <div class="flex flex-col space-y-1">
-                        <input type="date" id="eventDateInput" class="px-3 py-2 bg-slate-50 rounded-xl border text-xs text-softText">
-                    </div>
                 </div>
                 <textarea id="eventDescInput" rows="2" placeholder="Descripción breve..." class="w-full p-3 bg-slate-50 rounded-xl border text-xs"></textarea>
                 
                 <div class="space-y-1">
-                    <label class="text-xs font-bold font-heading text-softText">Adjuntar Imagen, Video o Convocatoria (Opcional):</label>
-                    <input type="file" id="eventFileInput" accept="image/*,video/*,.pdf,.doc,.docx" class="w-full text-xs text-softText file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sparklingFrost file:text-darkText hover:file:bg-peppermint">
+                    <label class="text-xs font-bold font-heading text-softText">Adjuntar Imágenes, Videos o Convocatorias (Múltiples):</label>
+                    <input type="file" id="eventFileInput" multiple accept="image/*,video/*,.pdf,.doc,.docx" class="w-full text-xs text-softText file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sparklingFrost file:text-darkText hover:file:bg-peppermint">
                 </div>
 
                 <div class="flex space-x-2">
@@ -443,8 +475,14 @@
             query, 
             orderBy 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { 
+            getStorage, 
+            ref, 
+            uploadBytes, 
+            getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-        // TUS CREDENCIALES REALES DE FIREBASE
+        // CONFIGURACIÓN DE FIREBASE (USANDO EL DOMINIO DE STORAGE CORREGIDO)
         const firebaseConfig = {
             apiKey: "AIzaSyDQzlH9nWICFMxDcaRseZ-HdgfrN7imav0",
             authDomain: "agora-7e62d.firebaseapp.com",
@@ -458,6 +496,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         const ADMIN_EMAIL = "naomi.herbert@iest.edu.mx";
 
@@ -466,18 +505,38 @@
         let forumPosts = [];
         let currentUser = null;
 
+        window.activeGalleryImages = [];
+        window.activeGalleryIndex = 0;
+
         // ESCUCHAR CAMBIOS EN EL ESTADO DE AUTENTICACIÓN
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    currentUser = { uid: user.uid, ...userDoc.data() };
-                } else {
+                const emailClean = (user.email || "").toLowerCase().trim();
+                const isAdminEmail = emailClean === ADMIN_EMAIL.toLowerCase().trim();
+
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        currentUser = { uid: user.uid, ...userDoc.data() };
+                        if (isAdminEmail) {
+                            currentUser.role = "Administrador";
+                        }
+                    } else {
+                        currentUser = {
+                            uid: user.uid,
+                            email: user.email,
+                            name: user.displayName || user.email.split('@')[0],
+                            role: isAdminEmail ? "Administrador" : "Usuario",
+                            isEntrepreneur: false
+                        };
+                    }
+                } catch (e) {
+                    console.error("Error al obtener datos de Firestore:", e);
                     currentUser = {
                         uid: user.uid,
                         email: user.email,
-                        name: user.displayName || user.email.split('@')[0],
-                        role: user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "Administrador" : "Usuario",
+                        name: user.email.split('@')[0],
+                        role: isAdminEmail ? "Administrador" : "Usuario",
                         isEntrepreneur: false
                     };
                 }
@@ -569,6 +628,37 @@
             }
         };
 
+        // SUBIR MÚLTIPLES ARCHIVOS CON MANEJO DE ERRORES MEJORADO
+        async function uploadFilesToStorage(fileInput, folder) {
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) return null;
+
+            const filesArray = Array.from(fileInput.files);
+            showToast("Subiendo archivo(s)...");
+
+            try {
+                const uploadPromises = filesArray.map(async (file) => {
+                    const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+                    const filePath = `${folder}/${Date.now()}_${Math.random().toString(36).substr(2, 5)}_${cleanName}`;
+                    const storageRef = ref(storage, filePath);
+
+                    const snapshot = await uploadBytes(storageRef, file);
+                    const downloadURL = await getDownloadURL(snapshot.ref);
+
+                    return {
+                        name: file.name,
+                        type: file.type,
+                        url: downloadURL
+                    };
+                });
+
+                return await Promise.all(uploadPromises);
+            } catch (err) {
+                console.error("Error detallado al subir a Firebase Storage:", err);
+                showToast("Error al subir archivo a Firebase Storage.");
+                throw err;
+            }
+        }
+
         // TALLERES Y RECURSOS (FIRESTORE)
         window.saveCourse = async function() {
             if (!currentUser || currentUser.role !== "Administrador") return;
@@ -583,30 +673,25 @@
 
             if (!title || !category || !detail) { showToast("Completa todos los campos obligatorios."); return; }
 
-            let mediaData = null;
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const base64 = await readFileAsBase64(file);
-                mediaData = { name: file.name, type: file.type, url: base64 };
-            }
-
             try {
+                let mediaData = await uploadFilesToStorage(fileInput, 'cursos');
+
                 if (editId) {
                     const docRef = doc(db, "courses", editId);
                     const updateData = { title, type, category, detail, instructor };
-                    if (mediaData) updateData.media = mediaData;
+                    if (mediaData) updateData.mediaList = mediaData;
                     await updateDoc(docRef, updateData);
                 } else {
                     await addDoc(collection(db, "courses"), {
                         title, type, category, detail, instructor,
-                        media: mediaData || null,
+                        mediaList: mediaData || [],
                         createdAt: new Date().toISOString()
                     });
                 }
                 resetCourseForm();
-                showToast("Guardado en Firebase correctamente.");
+                showToast("Guardado correctamente.");
             } catch (err) {
-                showToast("Error al guardar en base de datos.");
+                console.error(err);
             }
         };
 
@@ -625,12 +710,13 @@
             if (!course) return;
 
             document.getElementById('editCourseId').value = course.id;
-            document.getElementById('courseTitleInput').value = course.title;
-            document.getElementById('courseTypeInput').value = course.type;
-            document.getElementById('courseCategoryInput').value = course.category || "";
-            document.getElementById('courseDetailInput').value = course.detail;
-            document.getElementById('courseInstructorInput').value = course.instructor || "";
+            document.getElementById('courseTitleInput').value = course.title || '';
+            document.getElementById('courseTypeInput').value = course.type || 'Curso';
+            document.getElementById('courseCategoryInput').value = course.category || '';
+            document.getElementById('courseDetailInput').value = course.detail || '';
+            document.getElementById('courseInstructorInput').value = course.instructor || '';
             document.getElementById('courseFormTitle').textContent = "Editar Taller / Recurso";
+            window.scrollTo({ top: document.getElementById('adminCoursePanel').offsetTop - 80, behavior: 'smooth' });
         };
 
         // CONVOCATORIAS Y EVENTOS (FIRESTORE)
@@ -640,36 +726,33 @@
             const editId = document.getElementById('editEventId').value;
             const title = document.getElementById('eventTitleInput').value.trim();
             const type = document.getElementById('eventTypeInput').value;
-            const date = document.getElementById('eventDateInput').value;
             const desc = document.getElementById('eventDescInput').value.trim();
             const fileInput = document.getElementById('eventFileInput');
 
-            if (!title || !type || !date) { showToast("Completa todos los campos obligatorios."); return; }
-
-            let mediaData = null;
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const base64 = await readFileAsBase64(file);
-                mediaData = { name: file.name, type: file.type, url: base64 };
+            if (!title || !type) { 
+                showToast("Completa los campos obligatorios (Título y Tipo)."); 
+                return; 
             }
 
             try {
+                let mediaData = await uploadFilesToStorage(fileInput, 'eventos');
+
                 if (editId) {
                     const docRef = doc(db, "events", editId);
-                    const updateData = { title, type, date, desc };
-                    if (mediaData) updateData.media = mediaData;
+                    const updateData = { title, type, desc };
+                    if (mediaData) updateData.mediaList = mediaData;
                     await updateDoc(docRef, updateData);
                 } else {
                     await addDoc(collection(db, "events"), {
-                        title, type, date, desc,
-                        media: mediaData || null,
+                        title, type, desc,
+                        mediaList: mediaData || [],
                         createdAt: new Date().toISOString()
                     });
                 }
                 resetEventForm();
-                showToast("Evento guardado.");
+                showToast("Evento guardado correctamente.");
             } catch (e) {
-                showToast("Error al guardar el evento.");
+                console.error("Error al guardar evento:", e);
             }
         };
 
@@ -688,11 +771,11 @@
             if (!ev) return;
 
             document.getElementById('editEventId').value = ev.id;
-            document.getElementById('eventTitleInput').value = ev.title;
-            document.getElementById('eventTypeInput').value = ev.type || "";
-            document.getElementById('eventDateInput').value = ev.date;
-            document.getElementById('eventDescInput').value = ev.desc;
+            document.getElementById('eventTitleInput').value = ev.title || '';
+            document.getElementById('eventTypeInput').value = ev.type || '';
+            document.getElementById('eventDescInput').value = ev.desc || '';
             document.getElementById('eventFormTitle').textContent = "Editar Evento / Convocatoria";
+            window.scrollTo({ top: document.getElementById('adminEventPanel').offsetTop - 80, behavior: 'smooth' });
         };
 
         // FORO Y COMENTARIOS (FIRESTORE)
@@ -703,28 +786,46 @@
                 return;
             }
 
+            const editId = document.getElementById('editPostId').value;
             const title = document.getElementById('newPostTitle').value.trim();
             const content = document.getElementById('newPostContent').value.trim();
 
             if (!title || !content) { showToast("Escribe título y contenido."); return; }
 
             try {
-                await addDoc(collection(db, "forum"), {
-                    authorName: currentUser.name || currentUser.email,
-                    role: currentUser.role,
-                    isEntrepreneur: currentUser.isEntrepreneur,
-                    title: title,
-                    content: content,
-                    date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    createdAt: new Date().toISOString()
-                });
-
-                document.getElementById('newPostTitle').value = '';
-                document.getElementById('newPostContent').value = '';
-                showToast("Comentario publicado.");
+                if (editId) {
+                    const docRef = doc(db, "forum", editId);
+                    await updateDoc(docRef, { title, content });
+                    showToast("Comentario actualizado.");
+                } else {
+                    await addDoc(collection(db, "forum"), {
+                        authorName: currentUser.name || currentUser.email,
+                        role: currentUser.role,
+                        isEntrepreneur: currentUser.isEntrepreneur,
+                        title: title,
+                        content: content,
+                        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        createdAt: new Date().toISOString()
+                    });
+                    showToast("Comentario publicado.");
+                }
+                resetForumForm();
             } catch (e) {
-                showToast("Error al publicar el comentario.");
+                showToast("Error al procesar el comentario.");
             }
+        };
+
+        window.editPost = function(id) {
+            const post = forumPosts.find(p => p.id == id);
+            if (!post) return;
+
+            document.getElementById('editPostId').value = post.id;
+            document.getElementById('newPostTitle').value = post.title || '';
+            document.getElementById('newPostContent').value = post.content || '';
+            document.getElementById('forumFormTitle').textContent = "Editar comentario o tema";
+            document.getElementById('btnSavePost').textContent = "Guardar Cambios";
+            document.getElementById('btnCancelPost').classList.remove('hidden');
+            window.scrollTo({ top: document.getElementById('page-foro').offsetTop - 50, behavior: 'smooth' });
         };
 
         window.deletePost = async function(id) {
@@ -754,7 +855,7 @@
                 authIcon.className = "fa-solid fa-right-from-bracket";
                 
                 const tipoTexto = currentUser.role === 'Administrador' ? 'Admin' : (currentUser.isEntrepreneur ? 'Emprendedor' : 'No Emprendedor');
-                userBadge.textContent = `${currentUser.name} (${tipoTexto})`;
+                userBadge.textContent = `${currentUser.name || currentUser.email} (${tipoTexto})`;
                 
                 userInfoContainer.classList.remove('hidden');
                 registerBtn.classList.add('hidden');
@@ -809,15 +910,15 @@
                         </div>
                         ${currentUser && currentUser.role === 'Administrador' ? `
                             <div class="space-x-1">
-                                <button onclick="editCourse('${item.id}')" class="text-blue-500 hover:text-blue-700 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deleteCourse('${item.id}')" class="text-red-500 hover:text-red-700 text-xs p-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="window.editCourse('${item.id}')" class="text-blue-500 hover:text-blue-700 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="window.deleteCourse('${item.id}')" class="text-red-500 hover:text-red-700 text-xs p-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         ` : ''}
                     </div>
                     <div>
                         <h3 class="font-bold font-heading text-sm text-darkText">${item.title}</h3>
                         <p class="text-[11px] text-softText mt-1"><i class="fa-regular fa-clock mr-1"></i>${item.detail}</p>
-                        ${renderMediaAttachment(item.media)}
+                        ${renderMediaAttachment(item.mediaList || item.media, item.id)}
                     </div>
                     ${item.instructor ? `<div class="text-[11px] text-softText font-medium border-t pt-2 flex items-center space-x-1"><i class="fa-solid fa-user-tie text-deltone"></i> <span>Impartido por: <strong class="text-darkText">${item.instructor}</strong></span></div>` : ''}
                 </div>
@@ -843,15 +944,14 @@
                         <span class="px-2.5 py-1 bg-peppermint/40 text-darkText text-[10px] font-bold font-heading rounded-full uppercase">${ev.type}</span>
                         ${currentUser && currentUser.role === 'Administrador' ? `
                             <div class="space-x-1">
-                                <button onclick="editEvent('${ev.id}')" class="text-blue-500 hover:text-blue-700 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deleteEvent('${ev.id}')" class="text-red-500 hover:text-red-700 text-xs p-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="window.editEvent('${ev.id}')" class="text-blue-500 hover:text-blue-700 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="window.deleteEvent('${ev.id}')" class="text-red-500 hover:text-red-700 text-xs p-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         ` : ''}
                     </div>
                     <h3 class="font-bold font-heading text-sm text-darkText">${ev.title}</h3>
                     <p class="text-xs text-softText">${ev.desc}</p>
-                    ${renderMediaAttachment(ev.media)}
-                    <div class="pt-2 border-t text-[11px] font-semibold text-deltone">Fecha / Cierre: ${ev.date}</div>
+                    ${renderMediaAttachment(ev.mediaList || ev.media, ev.id)}
                 </div>
             `).join('');
         };
@@ -889,7 +989,8 @@
                         <div class="flex items-center space-x-2">
                             <span class="text-[10px] text-softText">${post.date}</span>
                             ${currentUser && currentUser.role === 'Administrador' ? `
-                                <button onclick="deletePost('${post.id}')" class="text-red-500 hover:text-red-700 text-xs ml-2 font-bold flex items-center space-x-1"><i class="fa-solid fa-trash"></i> <span>Borrar</span></button>
+                                <button onclick="window.editPost('${post.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold ml-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="window.deletePost('${post.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold ml-1"><i class="fa-solid fa-trash"></i></button>
                             ` : ''}
                         </div>
                     </div>
@@ -903,6 +1004,79 @@
         window.openRegisterModal = () => document.getElementById('registerModal').classList.remove('hidden');
         window.closeRegisterModal = () => document.getElementById('registerModal').classList.add('hidden');
         window.closeLoginModal = () => document.getElementById('loginModal').classList.add('hidden');
+
+        // VISOR DE GALERÍA
+        window.openImageViewer = function(index, imagesArray) {
+            window.activeGalleryImages = imagesArray || [];
+            window.activeGalleryIndex = index;
+
+            updateImageViewerContent();
+            document.getElementById('imageViewerModal').classList.remove('hidden');
+        };
+
+        function updateImageViewerContent() {
+            if (!window.activeGalleryImages || window.activeGalleryImages.length === 0) return;
+
+            const current = window.activeGalleryImages[window.activeGalleryIndex];
+            document.getElementById('imageViewerSrc').src = current.url;
+
+            const counter = document.getElementById('imageViewerCounter');
+            const btnPrev = document.getElementById('btnPrevImg');
+            const btnNext = document.getElementById('btnNextImg');
+
+            if (window.activeGalleryImages.length > 1) {
+                counter.textContent = `${window.activeGalleryIndex + 1} / ${window.activeGalleryImages.length}`;
+                counter.classList.remove('hidden');
+                btnPrev.classList.remove('hidden');
+                btnNext.classList.remove('hidden');
+            } else {
+                counter.classList.add('hidden');
+                btnPrev.classList.add('hidden');
+                btnNext.classList.add('hidden');
+            }
+        }
+
+        window.prevImageViewer = function() {
+            if (!window.activeGalleryImages.length) return;
+            window.activeGalleryIndex = (window.activeGalleryIndex - 1 + window.activeGalleryImages.length) % window.activeGalleryImages.length;
+            updateImageViewerContent();
+        };
+
+        window.nextImageViewer = function() {
+            if (!window.activeGalleryImages.length) return;
+            window.activeGalleryIndex = (window.activeGalleryIndex + 1) % window.activeGalleryImages.length;
+            updateImageViewerContent();
+        };
+
+        window.closeImageViewer = function() {
+            document.getElementById('imageViewerModal').classList.add('hidden');
+            document.getElementById('imageViewerSrc').src = '';
+            window.activeGalleryImages = [];
+            window.activeGalleryIndex = 0;
+        };
+
+        // CONTROLES TECLADO
+        window.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('imageViewerModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                if (e.key === 'ArrowLeft') window.prevImageViewer();
+                if (e.key === 'ArrowRight') window.nextImageViewer();
+                if (e.key === 'Escape') window.closeImageViewer();
+            }
+        });
+
+        window.openVideoViewer = function(url) {
+            const videoElem = document.getElementById('videoViewerSrc');
+            videoElem.src = url;
+            document.getElementById('videoViewerModal').classList.remove('hidden');
+        };
+
+        window.closeVideoViewer = function() {
+            const videoElem = document.getElementById('videoViewerSrc');
+            videoElem.pause();
+            videoElem.src = '';
+            document.getElementById('videoViewerModal').classList.add('hidden');
+        };
 
         window.resetCourseForm = function() {
             document.getElementById('editCourseId').value = '';
@@ -918,10 +1092,18 @@
             document.getElementById('editEventId').value = '';
             document.getElementById('eventTitleInput').value = '';
             document.getElementById('eventTypeInput').value = '';
-            document.getElementById('eventDateInput').value = '';
             document.getElementById('eventDescInput').value = '';
             document.getElementById('eventFileInput').value = '';
             document.getElementById('eventFormTitle').textContent = "Panel Admin: Crear Evento / Convocatoria";
+        };
+
+        window.resetForumForm = function() {
+            document.getElementById('editPostId').value = '';
+            document.getElementById('newPostTitle').value = '';
+            document.getElementById('newPostContent').value = '';
+            document.getElementById('forumFormTitle').textContent = "Escribir un comentario o tema";
+            document.getElementById('btnSavePost').textContent = "Publicar";
+            document.getElementById('btnCancelPost').classList.add('hidden');
         };
 
         window.navigate = function(pageId) {
@@ -953,24 +1135,118 @@
             }
         };
 
-        function renderMediaAttachment(media) {
-            if (!media) return '';
-            if (media.type.startsWith('image/')) {
-                return `<img src="${media.url}" alt="${media.name}" class="w-full h-40 object-cover rounded-xl mt-2 border">`;
-            } else if (media.type.startsWith('video/')) {
-                return `<video controls class="w-full h-40 rounded-xl mt-2 bg-black"><source src="${media.url}" type="${media.type}">Tu navegador no soporta video.</video>`;
-            } else {
-                return `<a href="${media.url}" download="${media.name}" class="inline-flex items-center space-x-2 mt-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-deltone"><i class="fa-solid fa-file-arrow-down text-sm"></i><span>Descargar ${media.name}</span></a>`;
+        // RENDERIZAR MULTIMEDIA
+        function renderMediaAttachment(mediaInput, postId) {
+            let items = [];
+            if (Array.isArray(mediaInput)) {
+                items = mediaInput;
+            } else if (mediaInput && typeof mediaInput === 'object') {
+                items = [mediaInput];
             }
-        }
 
-        function readFileAsBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
+            if (items.length === 0) return '';
+
+            const imageFiles = items.filter(m => m.type && m.type.startsWith('image/'));
+            const videoFiles = items.filter(m => m.type && m.type.startsWith('video/'));
+            const docFiles = items.filter(m => !m.type || (!m.type.startsWith('image/') && !m.type.startsWith('video/')));
+
+            const galleryKey = `gallery_${postId || Math.random().toString(36).substr(2, 9)}`;
+            window[galleryKey] = imageFiles;
+
+            let html = '';
+
+            // ÁLBUM DE FOTOS
+            if (imageFiles.length > 0) {
+                const count = imageFiles.length;
+
+                const renderImg = (media, index, extraClasses = '', overlayText = '') => {
+                    return `
+                        <div class="relative overflow-hidden cursor-pointer group ${extraClasses}" onclick="window.openImageViewer(${index}, window['${galleryKey}'])">
+                            <img src="${media.url}" alt="${media.name}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            ${overlayText ? `<div class="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-lg font-bold font-heading">${overlayText}</div>` : ''}
+                        </div>
+                    `;
+                };
+
+                html += `<div class="rounded-xl overflow-hidden mt-2 border border-slate-200">`;
+
+                if (count === 1) {
+                    html += `<div class="w-full max-h-96">${renderImg(imageFiles[0], 0, 'h-64 sm:h-80')}</div>`;
+                } else if (count === 2) {
+                    html += `
+                        <div class="grid grid-cols-2 gap-1 h-56 sm:h-64">
+                            ${renderImg(imageFiles[0], 0, 'h-full')}
+                            ${renderImg(imageFiles[1], 1, 'h-full')}
+                        </div>
+                    `;
+                } else if (count === 3) {
+                    html += `
+                        <div class="grid grid-cols-3 gap-1 h-60 sm:h-72">
+                            ${renderImg(imageFiles[0], 0, 'col-span-2 h-full')}
+                            <div class="grid grid-rows-2 gap-1 h-full">
+                                ${renderImg(imageFiles[1], 1, 'h-full')}
+                                ${renderImg(imageFiles[2], 2, 'h-full')}
+                            </div>
+                        </div>
+                    `;
+                } else if (count === 4) {
+                    html += `
+                        <div class="grid grid-cols-2 gap-1 h-64 sm:h-72">
+                            ${renderImg(imageFiles[0], 0, 'h-full')}
+                            ${renderImg(imageFiles[1], 1, 'h-full')}
+                            ${renderImg(imageFiles[2], 2, 'h-full')}
+                            ${renderImg(imageFiles[3], 3, 'h-full')}
+                        </div>
+                    `;
+                } else {
+                    const extraCount = count - 4;
+                    html += `
+                        <div class="grid grid-cols-2 gap-1 h-64 sm:h-72">
+                            ${renderImg(imageFiles[0], 0, 'h-full')}
+                            ${renderImg(imageFiles[1], 1, 'h-full')}
+                            ${renderImg(imageFiles[2], 2, 'h-full')}
+                            ${renderImg(imageFiles[3], 3, 'h-full', `+${extraCount}`)}
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+            }
+
+            // VIDEOS
+            if (videoFiles.length > 0) {
+                html += `<div class="space-y-2 mt-2">`;
+                videoFiles.forEach(vid => {
+                    html += `
+                        <div class="relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200 h-48 cursor-pointer group flex items-center justify-center" onclick="openVideoViewer('${vid.url}')">
+                            <video src="${vid.url}#t=0.5" preload="metadata" class="w-full h-full object-cover opacity-70 group-hover:opacity-50 transition duration-300"></video>
+                            <div class="absolute p-4 rounded-full bg-white/90 text-darkText group-hover:scale-110 group-hover:bg-deltone group-hover:text-white transition-all duration-300 shadow-xl flex items-center justify-center w-14 h-14">
+                                <i class="fa-solid fa-play text-xl ml-1"></i>
+                            </div>
+                            <span class="absolute bottom-3 left-3 text-[11px] font-bold text-white bg-black/60 px-2 py-1 rounded-lg backdrop-blur-sm truncate max-w-[80%]">
+                                <i class="fa-solid fa-video mr-1"></i>${vid.name || 'Ver Video'}
+                            </span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // DOCUMENTOS
+            if (docFiles.length > 0) {
+                html += `<div class="space-y-1.5 mt-2">`;
+                docFiles.forEach(doc => {
+                    html += `
+                        <a href="${doc.url}" download="${doc.name}" target="_blank" class="inline-flex items-center space-x-2 p-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-deltone truncate w-full transition">
+                            <i class="fa-solid fa-file-arrow-down text-sm"></i>
+                            <span class="truncate">${doc.name}</span>
+                        </a>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            return html;
         }
 
         window.showToast = function(msg) {
@@ -980,7 +1256,7 @@
             setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
         };
 
-        // CARRUSEL
+        // CARRUSEL INICIAL
         let slidesData = [
             { 
                 title: "¡Bienvenido a Ágora!", 
